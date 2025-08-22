@@ -1,0 +1,130 @@
+Tabzy.elements = [];
+
+function Tabzy(selector, options = {}) {
+    this.container = document.querySelector(selector);
+    if (!this.container) {
+        console.error(`Tabzy: No container found for selector: ${selector}`);
+        return;
+    }
+
+    this.tabs = Array.from(this.container.querySelectorAll("li a"));
+    if (!this.tabs.length) {
+        console.error("Tabzy: No tab found inside the container");
+        return;
+    }
+
+    this.panels = this.getPanels();
+    if (this.tabs.length !== this.panels.length) {
+        console.error("Error");
+        return;
+    }
+
+    this.cleanRegex = /[^a-zA-Z0-9]/g;
+    this.opt = Object.assign(
+        { activeClassName: "tabzy--active", remember: false, onChange: null },
+        options
+    );
+    this.paramKey = selector.replace(this.cleanRegex, "");
+    this.originHTML = this.container.innerHTML;
+    this.init();
+}
+
+Tabzy.prototype.getPanels = function () {
+    return this.tabs
+        .map((tab) => {
+            const panel = document.querySelector(tab.getAttribute("href"));
+
+            if (!panel) {
+                console.error(`Not panel found for selector ${tab.id}`);
+            }
+            return panel;
+        })
+        .filter(Boolean);
+};
+
+Tabzy.prototype.init = function () {
+    const params = new URLSearchParams(location.search);
+    const tabSelector = params.get(this.paramKey);
+
+    const tabActive =
+        (this.opt.remember &&
+            tabSelector &&
+            this.tabs.find(
+                (tab) =>
+                    tab.getAttribute("href").replace(this.cleanRegex, "") ===
+                    tabSelector
+            )) ||
+        this.tabs[0];
+
+    this.currentTab = tabActive;
+    this.activeTab(tabActive, false, false);
+    this.tabs.forEach((tab) => {
+        tab.onclick = (e) => {
+            e.preventDefault();
+            this.tryActivateTab(tab);
+        };
+    });
+};
+
+Tabzy.prototype.tryActivateTab = function (tab) {
+    if (this.currentTab !== tab) {
+        this.currentTab = tab;
+        this.activeTab(tab);
+    }
+};
+
+Tabzy.prototype.activeTab = function (
+    tab,
+    triggerOnChange = true,
+    updateURL = this.opt.remember
+) {
+    this.tabs.forEach((tab) =>
+        tab.closest("li").classList.remove(this.opt.activeClassName)
+    );
+    tab.closest("li").classList.add(this.opt.activeClassName);
+    this.panels.forEach((panel) => (panel.hidden = true));
+    const panelActive = document.querySelector(tab.getAttribute("href"));
+    panelActive.hidden = false;
+    if (updateURL) {
+        const params = new URLSearchParams(location.search);
+
+        params.set(
+            this.paramKey,
+            tab.getAttribute("href").replace(this.cleanRegex, "")
+        );
+        history.replaceState(null, null, `?${params}`);
+    }
+
+    if (triggerOnChange && typeof this.opt.onChange === "function") {
+        this.opt.onChange({
+            tab,
+            panel: panelActive,
+        });
+    }
+};
+
+Tabzy.prototype.switch = function (input) {
+    const tab = null;
+    tab =
+        typeof input === "string"
+            ? this.tabs.find((tab) => tab.getAttribute("href") === input)
+            : this.tabs.includes(input)
+            ? input
+            : null;
+
+    if (!tab) {
+        console.log("Error");
+        return;
+    }
+
+    this.tryActivateTab(tab);
+};
+
+Tabzy.prototype.destroy = function () {
+    this.panels.forEach((panel) => (panel.hidden = true));
+    this.container.innerHTML = this.originHTML;
+    this.container = null;
+    this.tabs = null;
+    this.panels = null;
+    this.currentTab = null;
+};

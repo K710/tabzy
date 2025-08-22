@@ -1,0 +1,90 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f6ecea;
+    font-family: "Roboto", sans-serif;
+}
+
+li {
+    list-style-type: none;
+    text-decoration: none;
+}
+a {
+    text-decoration: none;
+}
+
+.container {
+    display: flex;
+    width: 500px;
+    height: 450px;
+
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
+}
+
+.list-tab-container {
+    flex: 1;
+    background-color: #f3f3f3;
+    display: flex;
+}
+
+.tabs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.tabs .item-tab {
+    flex: 1;
+    display: flex;
+    /* align-items: center;
+    justify-content: center; */
+}
+
+.tabs .item-tab a {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+}
+
+.content-tab {
+    flex: 3;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+}
+
+.content-tab div {
+    padding: 10px 15px;
+}
+
+.content-tab h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.tabzy--active {
+    color: #cf8355;
+    background-color: #fefefe;
+    border-left: 5px solid #cf8355;
+}
+
+.tabs .item-tab a,
+.tabs .item-tab a:link,
+.tabs .item-tab a:visited {
+    color: inherit;
+}
+
+.tabzy--hidden {
+    visibility: hidden;
+}
